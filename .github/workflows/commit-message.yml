@@ -9,4 +9,4 @@ permissions:
 
 jobs:
   validate:
-    uses: owncloud/reusable-workflows/.github/workflows/semantic-git-message.yml@04aafe2344ca6b71fbef67c94785266563553b4c # main
+    uses: owncloud/reusable-workflows/.github/workflows/semantic-git-message.yml@93b664bbe3747be98e810e463a8556fd41d95a03 # main
