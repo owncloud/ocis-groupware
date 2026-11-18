@@ -23,4 +23,4 @@ concurrency:
 jobs:
   zizmor:
     name: Zizmor
-    uses: owncloud/reusable-workflows/.github/workflows/zizmor.yml@4852d0cc3901ace6c0a71f09649e533523f3e938 # main
+    uses: owncloud/reusable-workflows/.github/workflows/zizmor.yml@9e0a5c009530ac86aa92a1d170c3a8815c796862 # main
