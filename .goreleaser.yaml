@@ -43,9 +43,9 @@ sboms:
     artifacts: archive
 
 # The release notes come from the signed tag message (see the Release workflow),
-# and the workflow passes them with --release-notes.
-changelog:
-  disable: true
+# and the workflow passes them with --release-notes. GoReleaser reads that file
+# in its changelog step, so the changelog must stay enabled. With a notes file
+# it uses the file as is and does not generate a changelog of its own.
 
 release:
   prerelease: auto
