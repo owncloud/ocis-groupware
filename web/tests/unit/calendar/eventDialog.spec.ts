@@ -53,7 +53,7 @@ describe('EventDialog, creating', () => {
     await wrapper.get('[data-testid="event-location"]').setValue('Canteen')
     await choose(wrapper, 'event-calendar', 'Work')
     await wrapper.get('form').trigger('submit')
-    const [[saved]] = wrapper.emitted('save') as [[{ calendarId: string; input: Record<string, unknown> }]]
+    const [[saved]] = wrapper.emitted('save')!
     expect(saved.calendarId).toBe(editable[1].id)
     expect(saved.input).toMatchObject({
       subject: 'Lunch',
@@ -100,9 +100,9 @@ describe('EventDialog, creating', () => {
     await wrapper.get('[data-testid="event-all-day"] input').setValue(true)
     expect(wrapper.find('[data-testid="event-start-time"]').exists()).toBe(false)
     await wrapper.get('form').trigger('submit')
-    const [[saved]] = wrapper.emitted('save') as [[{ input: { isAllDay: boolean; end: { dateTime: string } } }]]
+    const [[saved]] = wrapper.emitted('save')!
     expect(saved.input.isAllDay).toBe(true)
-    expect(saved.input.end.dateTime).toBe('2026-11-11T00:00:00')
+    expect(saved.input.end?.dateTime).toBe('2026-11-11T00:00:00')
   })
 
   it('adds and removes attendees and refuses a bad address', async () => {
@@ -126,7 +126,7 @@ describe('EventDialog, creating', () => {
     expect(wrapper.emitted('save')).toBeUndefined()
     await wrapper.get('[data-testid="attendee-input"]').setValue('')
     await wrapper.get('form').trigger('submit')
-    const [[saved]] = wrapper.emitted('save') as [[{ input: { attendees: unknown[] } }]]
+    const [[saved]] = wrapper.emitted('save')!
     expect(saved.input.attendees).toEqual([
       { type: 'required', emailAddress: { name: '', address: 'marie@example.com' } }
     ])
@@ -139,7 +139,7 @@ describe('EventDialog, creating', () => {
     const wrapper = create()
     await wrapper.get('[data-testid="attendee-input"]').setValue('marie@example.com')
     await wrapper.get('form').trigger('submit')
-    const [[saved]] = wrapper.emitted('save') as [[{ input: { attendees: unknown[] } }]]
+    const [[saved]] = wrapper.emitted('save')!
     expect(saved.input.attendees).toHaveLength(1)
   })
 
@@ -165,7 +165,7 @@ describe('EventDialog, editing', () => {
     const wrapper = edit()
     await wrapper.get('[data-testid="event-subject"]').setValue('Planning v2')
     await wrapper.get('form').trigger('submit')
-    const [[saved]] = wrapper.emitted('save') as [[{ input: object }]]
+    const [[saved]] = wrapper.emitted('save')!
     expect(saved.input).toEqual({ subject: 'Planning v2' })
   })
 
@@ -200,7 +200,7 @@ describe('EventDialog, repeating', () => {
   const pressed = (wrapper: ReturnType<typeof create>, day: string) =>
     wrapper.get(`[data-testid="repeat-day-${day}"]`).attributes('aria-pressed')
   const saved = (wrapper: ReturnType<typeof create>) =>
-    (wrapper.emitted('save') as [[{ input: Record<string, any> }]])[0][0].input
+    wrapper.emitted('save')![0][0].input
 
   it('does not repeat by default and shows no pattern fields', () => {
     const wrapper = create()
@@ -231,7 +231,7 @@ describe('EventDialog, repeating', () => {
     await choose(wrapper, 'repeat-monthly-by', 'On a weekday')
     await choose(wrapper, 'repeat-index', 'Second')
     await wrapper.get('form').trigger('submit')
-    expect(saved(wrapper).recurrence.pattern).toMatchObject({
+    expect(saved(wrapper).recurrence?.pattern).toMatchObject({
       type: 'relativeMonthly',
       index: 'second',
       daysOfWeek: ['tuesday']
@@ -250,14 +250,14 @@ describe('EventDialog, repeating', () => {
     await choose(wrapper, 'repeat-end', 'After a number of times')
     await wrapper.get('[data-testid="repeat-count"]').setValue('4')
     await wrapper.get('form').trigger('submit')
-    expect(saved(wrapper).recurrence.range).toMatchObject({ type: 'numbered', numberOfOccurrences: 4 })
+    expect(saved(wrapper).recurrence?.range).toMatchObject({ type: 'numbered', numberOfOccurrences: 4 })
 
     const other = create()
     await setRepeat(other, 'Daily')
     await choose(other, 'repeat-end', 'On a date')
     await other.get('[data-testid="repeat-end-date"]').setValue('2026-12-24')
     await other.get('form').trigger('submit')
-    expect(saved(other).recurrence.range).toMatchObject({ type: 'endDate', endDate: '2026-12-24' })
+    expect(saved(other).recurrence?.range).toMatchObject({ type: 'endDate', endDate: '2026-12-24' })
   })
 
   it('refuses a bad pattern and names the field', async () => {
@@ -320,9 +320,9 @@ describe('EventDialog, repeating', () => {
     expect(wrapper.get('[data-testid="repeat-day-friday"]').attributes('aria-pressed')).toBe('true')
     await choose(wrapper, 'repeat-end', 'Never')
     await wrapper.get('form').trigger('submit')
-    const input = (wrapper.emitted('save') as [[{ input: Record<string, any> }]])[0][0].input
+    const input = wrapper.emitted('save')![0][0].input
     expect(Object.keys(input)).toEqual(['recurrence'])
-    expect(input.recurrence.range.type).toBe('noEnd')
+    expect(input.recurrence?.range.type).toBe('noEnd')
   })
 
   it('can stop a series from repeating', async () => {
@@ -336,7 +336,7 @@ describe('EventDialog, repeating', () => {
     })
     await setRepeat(wrapper as never, 'Does not repeat')
     await wrapper.get('form').trigger('submit')
-    expect((wrapper.emitted('save') as [[{ input: object }]])[0][0].input).toEqual({ recurrence: null })
+    expect(wrapper.emitted('save')![0][0].input).toEqual({ recurrence: null })
   })
 
   it('has no repeat section for one occurrence of a series', () => {
@@ -359,7 +359,7 @@ describe('EventDialog, reminders', () => {
     expect(selectedLabel(wrapper, 'event-reminder')).toBe('No reminder')
     await choose(wrapper, 'event-reminder', '30 minutes before')
     await wrapper.get('form').trigger('submit')
-    const [[saved]] = wrapper.emitted('save') as [[{ input: Record<string, unknown> }]]
+    const [[saved]] = wrapper.emitted('save')!
     expect(saved.input).toMatchObject({ isReminderOn: true, reminderMinutesBeforeStart: 30 })
   })
 
@@ -369,7 +369,7 @@ describe('EventDialog, reminders', () => {
     expect(optionLabels(wrapper, 'event-reminder')[0]).toBe('No reminder')
     await choose(wrapper, 'event-reminder', 'No reminder')
     await wrapper.get('form').trigger('submit')
-    const [[saved]] = wrapper.emitted('save') as [[{ input: object }]]
+    const [[saved]] = wrapper.emitted('save')!
     expect(saved.input).toEqual({ isReminderOn: false })
   })
 })
